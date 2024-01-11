@@ -1,10 +1,7 @@
 #!/usr/bin/env nextflow
 
-params.inputFile = file
 params.cutoff = float
-
-// Define a channel for the input FASTA file
-inputFileChannel = file(params.inputFile).val
+params.inputFile = file
 
 // Define the workflow
 workflow {
@@ -12,11 +9,15 @@ workflow {
     // and writes sequences with GC content greater than the cutoff to output.txt
     process checkGC {
         input:
-        file fasta from inputFileChannel
+        file fastaFile
+        float cutoff
         
         output:
         file 'output.txt' into outputChannel
-        
+
+        // Define a channel for the input FASTA file
+        inputFileChannel = file(params.inputFile)
+
         script:
         """
         # Calculate GC content for each sequence
