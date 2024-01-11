@@ -1,58 +1,42 @@
 #!/usr/bin/env nextflow
 
+params.inputFile = file
+params.cutoff = float
+
+// Define a channel for the input FASTA file
+inputFileChannel = file(params.inputFile).val
+
 // Define the workflow
 workflow {
-    // Input parameters
-    input:
-    path inputFile
-    float cutoff
-
-    // Create a channel for the input FASTA file
-    input_fasta = channel.fromPath(inputFile)
-
-    // Process to calculate GC content and filter sequences
+    // Call a process that iterates over the FASTA sequences
+    // and writes sequences with GC content greater than the cutoff to output.txt
     process checkGC {
         input:
-        path fastaFile from input_fasta
+        file fasta from inputFileChannel
         
         output:
-        path 'output.txt'
-
-        // Script to calculate GC content and filter sequences
+        file 'output.txt' into outputChannel
+        
         script:
         """
         # Calculate GC content for each sequence
         python3 << 'EOF'
-import sys
+import re
+from Bio import SeqIO
 
-def calculate_gc_content(seq):
-    gc_count = sum(seq.count(base) for base in ['G', 'C', 'g', 'c'])
-    return gc_count / len(seq)
+cutoff = ${params.cutoff}
 
-cutoff = float(${cutoff})
-output_file = open("output.txt", "w")
+with open('${fasta}') as fasta_file, open('output.txt', 'w') as output_file:
+    for record in SeqIO.parse(fasta_file, 'fasta'):
+        sequence = str(record.seq)
+        gc_content = (sequence.count('G') + sequence.count('C')) / len(sequence)
 
-with open("${fastaFile}") as fasta:
-    header = ""
-    sequence = ""
-    for line in fasta:
-        if line.startswith('>'):
-            if header:
-                gc_content = calculate_gc_content(sequence)
-                if gc_content > cutoff:
-                    output_file.write(header.strip() + "\\n" + sequence.strip() + "\\n")
-            header = line
-            sequence = ""
-        else:
-            sequence += line.strip()
-
-    # Process the last sequence in the file
-    gc_content = calculate_gc_content(sequence)
-    if gc_content > cutoff:
-        output_file.write(header.strip() + "\\n" + sequence.strip() + "\\n")
-
-output_file.close()
+        if gc_content > cutoff:
+            output_file.write(f'>{record.id}\n{sequence}\n')
 EOF
         """
     }
+    
+    // Define the output channel for the output.txt file
+    outputChannel = result
 }
