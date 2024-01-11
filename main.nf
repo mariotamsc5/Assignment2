@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.inputFile = file
+params.inputFile = ''
 params.cutoff = float
 
 // Define a channel for the input FASTA file
