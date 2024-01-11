@@ -1,10 +1,10 @@
 #!/usr/bin/env nextflow
 
-params.inputFile = ''
+params.in = "$HOME/sample.fa"
 params.cutoff = float
 
 // Define a channel for the input FASTA file
-inputFileChannel = file(params.inputFile).val
+inputFileChannel = file(params.in).val
 
 // Define the workflow
 workflow {
