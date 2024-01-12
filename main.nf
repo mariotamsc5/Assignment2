@@ -5,7 +5,7 @@ inputFileChannel = file(params.inputFile)
 
 process checkGC {
     input:
-    file fasta from inputFileChannel
+    file fasta
     
     output:
     file 'output.txt' into outputChannel
