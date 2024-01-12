@@ -33,11 +33,12 @@ process checkGC {
 
 // Define the workflow
 workflow {
+    // Use Channel.fromPath to create a channel from a file path
     fastaRecord = Channel.fromPath('data/bacterial_dna.fasta')
     // Call a process that iterates over the FASTA sequences
     // and writes sequences with GC content greater than the cutoff to output.txt
-
+    checkGC(fastaRecord)
     
     // Define the output channel for the output.txt file
-    outputChannel = result
+    outputChannel = checkGC.out
 }
