@@ -8,7 +8,7 @@ process checkGC {
     file fasta
     
     output:
-    file 'output.txt' into outputChannel
+    file 'output.txt'
     
     script:
     """
