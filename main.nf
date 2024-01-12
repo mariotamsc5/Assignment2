@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 // Define a channel for the input FASTA file
-inputFileChannel = file(params.inputFile).val
+inputFileChannel = file(params.inputFile)
 
 process checkGC {
     input:
